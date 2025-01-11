@@ -1,0 +1,5 @@
+description: 物质由一种状态变为另一种状态的过程称为物态变化（change of state）
+user: JL
+upload_time: 2024:12:20-00:29:56
+view: 22
+: 

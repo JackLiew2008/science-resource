@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="upload-container">
+        <h1 class="upload_title">上传文件</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">标题：</label>
+                <input type="text" id="title" name="title" maxlength="50" required>
+            </div>
+            <div class="form-group-textarea-container">
+                <label for="description">描述：</label>
+                <textarea id="description" name="description" rows="4" maxlength="100" required></textarea>
+                <div id="char-count" class="char-count">
+		            0 / 100
+		        </div>
+            </div>
+
+            <div class="form-group">
+                <label for="file">上传文件：</label>
+                <input type="file" id="file" name="file" accept=".pdf" required>
+            </div>
+            <button type="submit" class="submit-btn">提交</button>
+        </form>
+    </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+	    const textarea = document.getElementById('description');
+	    const charCount = document.getElementById('char-count');
+	    const maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
+	
+	    textarea.addEventListener('input', () => {
+	        const currentLength = textarea.value.length;
+	        charCount.textContent = `${currentLength} / ${maxLength}`;
+	
+	        if (currentLength >= maxLength) {
+	            charCount.classList.add('red');
+	        } else {
+	            charCount.classList.remove('red');
+	        }
+	    });
+	});
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="upload-container">
+        <h1 class="upload_title">注册</h1>
+        <form method="post">
+            <div class="form-group">
+                <label>用户名：</label>
+                <input type="text" name="username" placeholder="" maxlength="20" required>
+            </div>
+	        <div class="form-group">
+		        <label>真实姓名：</label>
+		        <input type="text" name="realname" placeholder="请填写实名以获得投稿奖励" maxlength="10" required>
+	        </div>
+	        <div class="form-group">
+		        <label>邮箱：</label>
+		        <input type="text" name="email" placeholder="" maxlength="50" required>
+	        </div>
+            <div class="form-group">
+                <label>密码：</label>
+	            <div class="password-container">
+		            <input type="password" id="password-input" name="password" placeholder="" maxlength="20" required>
+                    <span id="toggle-password" class="eye-icon">👁</span>
+	            </div>
+            </div>
+	        
+	        <!--<div class="form-group">
+		        <input type="checkbox" name="is_admin">
+	        </div>-->
+            <button type="submit" class="submit-btn">注册</button>
+        </form>
+    </div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+		    const passwordInput = document.getElementById('password-input');
+		    const togglePasswordIcon = document.getElementById('toggle-password');
+		
+		    togglePasswordIcon.addEventListener('mousedown', () => {
+		        passwordInput.type = 'text';  // 显示明文密码
+		    });
+		
+		    togglePasswordIcon.addEventListener('mouseup', () => {
+		        passwordInput.type = 'password';  // 隐藏为密文
+		    });
+		
+		    togglePasswordIcon.addEventListener('mouseleave', () => {
+		        passwordInput.type = 'password';  // 鼠标离开时恢复为密文
+		    });
+		});
+	</script>
+{% endblock %}

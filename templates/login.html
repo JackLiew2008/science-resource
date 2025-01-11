@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="login-container">
+        <h1 class="login_title">登录</h1>
+        <form method="post">
+            <div class="form-group">
+                <label>用户名：</label>
+                <input type="text" name="username" placeholder="" required>
+            </div>
+	        <div class="form-group">
+                <label>密码：</label>
+	            <div class="password-container">
+		            <input type="password" id="password-input" name="password" placeholder="" maxlength="20" required>
+                    <span id="toggle-password" class="eye-icon">👁</span>
+	            </div>
+            </div>
+	        <br/>
+            <button type="submit" class="submit-btn">登录</button>
+        </form>
+    </div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', () => {
+		    const passwordInput = document.getElementById('password-input');
+		    const togglePasswordIcon = document.getElementById('toggle-password');
+		
+		    togglePasswordIcon.addEventListener('mousedown', () => {
+		        passwordInput.type = 'text';  // 显示明文密码
+		    });
+		
+		    togglePasswordIcon.addEventListener('mouseup', () => {
+		        passwordInput.type = 'password';  // 隐藏为密文
+		    });
+		
+		    togglePasswordIcon.addEventListener('mouseleave', () => {
+		        passwordInput.type = 'password';  // 鼠标离开时恢复为密文
+		    });
+		});
+	</script>
+{% endblock %}

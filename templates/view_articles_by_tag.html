@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Articles Tagged with "{{ tag.name }}"</h1>
+    <ul class="list-group">
+        {% for article in articles %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('view_article', article_id=article.id) }}">{{ article.title }}</a>
+                <button class="btn btn-warning btn-sm"
+                        data-article-id="{{ article.id }}"
+                        data-tag-id="{{ tag.id }}">
+                    Remove Tag
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('manage_tags') }}" class="btn btn-secondary mt-3">Back to Manage Tags</a>
+</div>
+
+<script>
+    // 监听取消标签按钮的点击事件
+    document.querySelectorAll('button[data-article-id]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const articleId = this.getAttribute('data-article-id');
+            const tagId = this.getAttribute('data-tag-id');
+
+            // 发送请求从文章中移除标签
+            fetch(`/remove_tag_from_article/${articleId}/${tagId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Tag removed successfully!');
+                    location.reload();  // 刷新页面以更新标签列表
+                } else {
+                    alert('Error removing tag.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,38 @@
+<header class="navbar">
+    <div class="logo">
+        <a href="/" class="logo-link">
+            <img src="/static/icon3.png" alt="Logo" class="logo-img"> <!-- 左侧图片 -->
+            <span>科学资源</span> <!-- 标题文字 -->
+        </a>
+    </div>
+    <ul class="need-space">
+        <li><a href="/upload">上传</a></li>
+	    <li><a href="/upload2">上传2</a></li>
+	    <li><a href="/create_article">上传3</a></li>
+        <li><a href="/">阅读</a></li>
+	    <li><a href="/articles">阅读2</a></li>
+    </ul>
+	{% if current_user.is_authenticated %}
+		{% if current_user.is_admin %}
+			<ul>
+	            <li><a href="{{ url_for('admin') }}">管理员</a></li>
+		        <li><a href="{{ url_for('audit') }}">审核文章</a></li>
+				<li><a href="{{ url_for('audit_articles') }}">审核文章2</a></li>
+				<li><a href="{{ url_for('manage_tags') }}">管理标签</a></li>
+			</ul>
+        {% endif %}
+		<div class="login-btn">
+	        <a href="{{ url_for('dashboard') }}" class="custom-btn">我的金库</a> <!-- 登出按钮 -->
+	    </div>
+		<div class="login-btn">
+	        <a href="{{ url_for('logout') }}" class="custom-btn">登出</a> <!-- 登出按钮 -->
+	    </div>
+	{% else %}
+		<div class="login-btn">
+	        <a href="{{ url_for('register') }}" class="custom-btn">注册</a> <!-- 注册按钮 -->
+	    </div>
+		<div class="login-btn">
+	        <a href="{{ url_for('login') }}" class="custom-btn">登录</a> <!-- 登录按钮 -->
+	    </div>
+	{% endif %}
+</header>

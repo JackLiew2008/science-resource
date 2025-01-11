@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Create Article</h1>
+    <form method="POST">
+        <!-- 标题 -->
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+
+        <!-- 描述 -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" required></textarea>
+        </div>
+        
+        <!-- 标签选择 -->
+        <div class="mb-3">
+            <label for="tags" class="form-label">Tags</label>
+            <div class="d-flex flex-wrap" id="tag-container">
+                <!-- 显示现有标签 -->
+                {% for tag in tags %}
+                    <button type="button" class="tag-btn article-tag-{{ tag.name }}" data-tag="{{ tag.id }}">{{ tag.name }}</button>
+                {% endfor %}
+            </div>
+            <!-- 隐藏的 input 用于提交选中的标签 -->
+            <input type="hidden" name="tags" id="selected-tags">
+        </div>
+
+        <!-- 新建标签按钮 移动到标签选择下方 -->
+        <div class="mb-3">
+            <button type="button" class="btn btn-info" id="create-tag-btn">Create New Tag</button>
+        </div>
+
+        <!-- 新标签 -->
+        <div id="new-tag-container" class="mb-3" style="display: none;">
+            <label for="new-tag" class="form-label">New Tag</label>
+            <input type="text" class="form-control" id="new-tag" name="new-tag">
+            <button type="button" class="btn btn-primary mt-2" id="save-new-tag">Save Tag</button>
+        </div>
+
+        <!-- Quill 编辑器 -->
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <div id="editor" class="editor-new"></div>
+            <input type="hidden" name="content" id="content">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<!-- Quill 编辑器脚本 -->
+<script>
+    var quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    // 在表单提交时将 Quill 编辑器的内容设置到隐藏的 input 中
+    document.querySelector('form').onsubmit = function() {
+        document.querySelector('#content').value = quill.root.innerHTML;
+    };
+
+    // 标签选择按钮
+    document.querySelectorAll('.tag-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            button.classList.toggle('selected');
+
+            // 获取选中的标签
+            let selectedTags = [];
+            document.querySelectorAll('.tag-btn.selected').forEach(function(selectedButton) {
+                selectedTags.push(selectedButton.getAttribute('data-tag'));
+            });
+
+            // 将选中的标签更新到隐藏的 input 中
+            document.querySelector('#selected-tags').value = selectedTags.join(',');
+        });
+    });
+    
+    // 显示新建标签输入框
+    document.querySelector('#create-tag-btn').addEventListener('click', function() {
+        document.querySelector('#new-tag-container').style.display = 'block';
+    });
+
+    // 提交新标签
+    document.querySelector('#save-new-tag').addEventListener('click', function() {
+        var tagName = document.querySelector('#new-tag').value;
+
+        if (tagName.trim() === '') {
+            alert('Please enter a valid tag name!');
+            return;
+        }
+
+        // 通过 AJAX 向 Flask 后端发送请求
+        fetch('/create_tag', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'tag_name=' + encodeURIComponent(tagName)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Tag created successfully!');
+                location.reload();  // 重新加载页面以显示新标签
+            } else {
+                alert('Error creating tag.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+
+{% endblock %}

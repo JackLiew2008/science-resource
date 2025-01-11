@@ -1,0 +1,5 @@
+description: Introducing the concept of integration using high school math
+user: AnonTokyo
+upload_time: 2024:12:24-12:01:19
+view: 1
+: 

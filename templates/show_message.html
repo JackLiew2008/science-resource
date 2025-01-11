@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+	<div class="messages">
+		<p><b>Error: </b>{{ message }}</p>
+		<p><b>Instruction: </b>{{ instruction }}</p>
+	    <a href="/upload"><input type="button" class="message-btn" value="Upload Again" /></a>
+	</div>
+{% endblock %}

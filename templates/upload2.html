@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<form method="post">
+		<div class="editor-container">
+			<h1 class="upload_title">编写文件</h1>
+		    <!-- 富文本工具栏 -->
+		    <div class="toolbar" id="toolbar">
+		        <button class="ql-bold" title="粗体"></button>
+		        <button class="ql-italic" title="斜体"></button>
+		        <button class="ql-underline" title="添加下划线"></button>
+			    <select class="ql-color" title="文字颜色"></select>
+			    <select class="ql-background" title="背景颜色"></select>
+		        <select class="ql-font" title="字体">
+				    <option value="sans-serif">Sans Serif</option>
+			        <option value="simhei">SimHei</option>
+			        <option value="microsoft-yahei">Microsoft YaHei</option>
+			        <option value="simsun">SimSun</option>
+			        <option value="kaiti">KaiTi</option>
+			        <option value="fangsong">FangSong</option>
+			        <option value="times-new-roman">Times New Roman</option>
+				</select>
+		        <select class="ql-size" title="字号"></select>
+			    <button class="ql-strike" title="添加划线"></button>
+				<button class="ql-script" title="添加为下标" value="sub"></button>
+			    <button class="ql-script" title="添加为上标"value="super"></button>
+			    
+			    <button class="unclickable"></button>
+			    
+			    <select class="ql-align" title="排版">
+		            <option selected="selected"></option>
+		            <option value="center"></option>
+		            <option value="right"></option>
+		            <option value="justify"></option>
+		        </select>
+			    <button class="ql-header" value="1" title="一级标题" ></button>
+			    <button class="ql-header" value="2" title="二级标题" ></button>
+			    <button class="ql-list" value="ordered" title="有序列表"></button>
+				<button class="ql-list" value="bullet" title="无序列表"></button>
+				<button class="ql-indent" value="+1" title="增加缩进量"></button>
+				<button class="ql-indent" value="-1" title="减少缩进量"></button>
+			    
+			    <button class="unclickable"></button>
+			    
+			    <button class="ql-link" title="插入超链接"></button>
+		        <button class="ql-image" title="插入图片"></button>
+			    <button class="ql-video" title="插入视频"></button>
+			    <button class="ql-blockquote" title="引用块" ></button>
+				<button class="ql-formula" title="插入公式"></button>
+			    <button class="ql-code-block" title="代码块" ></button>
+		    </div>
+		
+		    <div id="editor">
+			   
+		    </div>
+		
+			<input type="hidden" name="content" id="content">
+	
+	        <label for="tags">选择标签</label>
+	        <select name="tags" id="tags" multiple>
+	            {% for tag in tags %}
+	                <option value="{{ tag.id }}">{{ tag.name }}</option>
+	            {% endfor %}
+	        </select><br><br>
+			
+<!--			<button type="submit" class="submit-btn" onclick="submitContent()">提交</button>-->
+			<button type="submit" class="submit-btn" onclick="submitContent()">提交</button>
+			
+		</div>
+	</form>
+	
+	<!-- Quill 依赖的脚本 -->
+	<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.15.2/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
+    
+    <script>
+	    if (window.ImageResize) {
+            Quill.register('modules/imageResize', window.ImageResize.default || window.ImageResize);
+        }
+	    //Quill.register('modules/imageResize', ImageResize);
+		// Add fonts to whitelist
+	    let Font = Quill.import('formats/font')
+	    // We do not add Sans Serif since it is the default
+	    Font.whitelist = ['sans-serif', 'simhei', 'microsoft-yahei', 'simsun', 'kaiti', 'fangsong', 'arial', 'times-new-roman']
+	    Quill.register(Font, true)
+	    
+	    // 初始化 Quill 编辑器
+	    var quill = new Quill('#editor', {
+		    modules: {
+			    toolbar: '#toolbar',
+			    imageResize: {},
+		    },
+		    theme: 'snow',
+		    formula: true,
+		    placeholder: 'Write your document...'
+	    });
+	    
+		quill.getModule('formula').formulaInput = function(input) {
+	        return katex.renderToString(input);
+	    };
+		
+		// 在表单提交时，将 Quill 内容保存到隐藏字段
+        var form = document.querySelector('form');
+        form.onsubmit = function() {
+            var content = document.querySelector('#content');
+            content.value = quill.root.innerHTML;
+        }
+		
+	    // function submitContent() {
+		//     var content = quill.root.innerHTML;
+		//     fetch('/save', {
+		// 	    method: 'POST',
+		// 	    headers: {
+		// 		    'Content-Type': 'application/json'
+		// 	    },
+		// 	    body: JSON.stringify({html_content: content})
+		//     }).then(response => {
+		// 	    if (response.ok) {
+		// 		    alert("内容已保存！");
+		// 	    }
+		//     });
+	    // }
+    </script>
+{% endblock %}

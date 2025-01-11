@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="custom-container">
+		<h2>管理员面板</h2>
+		<br/>
+		<h3>用户列表</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Username</th>
+					<th>RealName</th>
+					<th>Email</th>
+					<th>Password</th>
+					<th>Balance</th>
+					<th>Admin</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for user in users %}
+					<tr>
+						<td> {{ user.id }} </td>
+						<td> {{ user.username }} </td>
+						<td> {{ user.realname }} </td>
+						<td> {{ user.email }} </td>
+						<td> {{ user.password }} </td>
+						<td> {{ user.balance }} </td>
+						<td>
+							<form method="POST" action="{{ url_for('toggle_admin', user_id=user.id) }}" style="display:inline;">
+								<button type="submit">{{ '取消管理员' if user.is_admin else '设置管理员' }}</button>
+		                    </form>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}

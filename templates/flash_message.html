@@ -1,0 +1,28 @@
+<!-- Flash Messages -->
+<div class="message-container">
+    <div id="flash-messages">
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+			    {% for category, message in messages %}
+		            <div class="flash-message {{ category }}">
+			            {{ message }}
+			            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+			        </div>
+			    {% endfor %}
+			{% endif %}
+		{% endwith %}
+    </div>
+</div>
+	 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const flashMessages = document.querySelectorAll('.flash-message');
+
+    // Automatically hide flash messages after 5 seconds
+    flashMessages.forEach(message => {
+        setTimeout(() => {
+            message.style.display = 'none';
+        }, 5000);
+    });
+});
+</script>

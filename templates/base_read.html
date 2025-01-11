@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/css_reads.css">
+	<link rel="stylesheet" type="text/css" href="/static/css_html.css">
+	
+    <title>{{ title }}</title>
+</head>
+<body style='margin:0'>
+	{% include 'header.html' %}
+	
+    {% include 'flash_message.html' %}
+    
+    <!-- 主体内容 -->
+    <main>
+	    {% block content %}{% endblock %}
+    </main>
+	{% if state == "audit" %}
+		<div class="action-container">
+	        <div class="action-title">审核操作</div>
+	        <div class="action-row">
+		        <form method="post" action="/audit_move/{{ title }}">
+			        <button type="submit" class="action-button approve-button">审核通过</button>
+		            <label class="honor-label">
+		                荣誉货币：
+		                <input
+		                    type="number"
+		                    name="honorCurrency"
+		                    class="honor-input"
+		                    id="honorCurrency"
+		                    min="2"
+		                    max="10"
+		                    value="5">
+		            </label>
+		        </form>
+		        <form method="post" action="/audit_delete/{{ title }}">
+			        <button type="submit" class="action-button reject-button">审核拒绝</button>
+		        </form>
+	         
+	        </div>
+	    </div>
+	{% endif %}
+	{% include 'footer.html' %}
+	<script>
+	</script>
+
+</body>
+</html>
+

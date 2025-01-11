@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container manage-tags-container mt-5">
+    <h1 class="manage-tags-title">Manage Tags</h1>
+
+    <!-- 标签列表 -->
+    <div id="tag-list" class="tag-list">
+        {% for tag in tags %}
+            <div class="tag-item" data-tag-id="{{ tag.id }}">
+                <span class="tag-name">{{ tag.name }}</span>
+                <span class="badge badge-secondary article-count">{{ tag.article_count }} articles</span>
+                <a href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}" class="view-articles-btn">View Articles</a>
+                <button class="delete-tag-btn btn btn-danger btn-sm" data-tag-id="{{ tag.id }}">Delete</button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 添加新标签 -->
+    <div class="new-tag-container">
+        <input type="text" class="form-control new-tag-input" id="new-tag-name" placeholder="Enter new tag">
+        <button class="btn btn-primary add-tag-btn" id="create-tag-btn">Add Tag</button>
+    </div>
+</div>
+
+<!-- 弹窗提示 -->
+<div id="message" class="alert" role="alert" style="display: none;"></div>
+
+<script>
+    // 删除标签的事件监听
+    document.querySelectorAll('.delete-tag-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const tagId = this.getAttribute('data-tag-id');
+            if (confirm('Are you sure you want to delete this tag?')) {
+                // 通过 AJAX 向后端发送删除请求
+                fetch(`/delete_tag/${tagId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Tag deleted successfully!');
+                        location.reload();  // 刷新页面以更新标签列表
+                    } else {
+                        alert('Error deleting tag.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    });
+
+    // 添加新标签
+    document.getElementById('create-tag-btn').addEventListener('click', function() {
+        const tagName = document.getElementById('new-tag-name').value.trim();
+        if (!tagName) {
+            alert('Please enter a valid tag name.');
+            return;
+        }
+
+        // 通过 AJAX 向后端发送新标签添加请求
+        fetch('/create_tag', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'tag_name=' + encodeURIComponent(tagName)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Tag added successfully!');
+                location.reload();  // 刷新页面以显示新标签
+            } else {
+                alert('Error adding tag.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+
+{% endblock %}

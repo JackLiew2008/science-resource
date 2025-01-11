@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- 主体内容 -->
+    <div class="custom-container">
+	    
+	    <div class="flashes">
+		    网站使用疑问：
+		    15810135648（微信）
+		    或 liuzj_jack@163.com（邮箱）
+	    </div>
+	    
+	    <!-- 搜索模块 -->
+	    <form action="/" method="get">
+	        <div class="search-container">
+	            <input type="text" name="query" class="search-input" id="searchInput" placeholder="根据文章名称或简介搜索..." value="{% if qquery == '' %}{% else %}{{ qquery }}{% endif %}">
+	            <button type="submit" class="search-button">搜索</button>
+		        <div class="autocomplete-list" id="autocompleteList"></div>
+	        </div>
+	    </form>
+	    
+        <div class="card-container">
+	        {% for file in files %}
+	        <div class="card">
+		        <div class="card-content">
+			        <a href="{{ file.link }}" target="_blank"><div class="title">{{ file.title }}</div></a>
+		         
+			        {% if session.get('is_admin') %}
+			            <p>浏览次数：{{ file.view }}</p>
+			        {% endif %}
+			        <p>作者：{{ file.user }}</p>
+			        <p>{{ file.description }}</p>
+		        </div>
+		        <a href="{{ file.link }}" target="_blank" class="card-link">进入阅读</a>
+	        </div>
+	        {% endfor %}
+        </div>
+    </div>
+
+	{% set state = state %}
+	<script>
+	    let articles = [];
+
+	    // 获取文件列表
+	    async function fetchArticles() {
+	        const response_audit = await fetch('/get-audit');
+			const response_reads = await fetch('/get-reads');
+			var state = {{ state | tojson }}
+			if (state=='audit') {
+				articles = await response_audit.json();
+		    } else if ( state=='reads' ) {
+				articles = await response_reads.json();
+		    }
+	    }
+	
+	    // 调用获取文件列表的函数
+	    fetchArticles();
+	
+	    const searchInput = document.getElementById("searchInput");
+	    const autocompleteList = document.getElementById("autocompleteList");
+	
+	    searchInput.addEventListener("input", function() {
+	        const query = searchInput.value.toLowerCase();
+	        autocompleteList.innerHTML = "";  // 清空旧的搜索结果
+	
+	        if (query) {
+	            // 根据输入内容过滤文件列表
+	            const filteredArticles = articles.filter(item => item.title.toLowerCase().includes(query) || item.description.toLowerCase().includes(query));
+	
+	            // 显示筛选出的文件
+	            filteredArticles.forEach(item => {
+	                const listItem = document.createElement("div");
+	                listItem.classList.add("autocomplete-item");
+	                listItem.innerText = item.title;
+	                listItem.addEventListener("click", function() {
+	                    window.location.href = item.link;  // 点击跳转到文件链接
+	                });
+	                autocompleteList.appendChild(listItem);
+	            });
+	        }
+	    });
+	
+	    // 点击页面其他地方时，隐藏下拉列表
+	    document.addEventListener("click", function(e) {
+	        if (!searchInput.contains(e.target)) {
+	            autocompleteList.innerHTML = "";
+	        }
+	    });
+	</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+	<div class="custom-container">
+		<h2>确认销户</h2>
+		<p>您确定要永久删除您的账户吗？此操作无法恢复。</p>
+		<br/>
+		<form method="POST" action="{{ url_for('delete_account') }}">
+		    <button type="submit" class="custom-btn">确认销户</button>
+		</form>
+		<br/>
+		<a href="{{ url_for('dashboard') }}">返回控制面板</a>
+	</div>
+{% endblock %}
