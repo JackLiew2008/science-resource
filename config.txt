@@ -1,4 +1,4 @@
-views: 739
+views: 7391
 coin_tot: 143
 coin_trsf: 20
 : 
