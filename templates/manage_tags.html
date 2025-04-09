@@ -2,25 +2,29 @@
 
 {% block content %}
 <div class="container manage-tags-container mt-5">
-    <h1 class="manage-tags-title">Manage Tags</h1>
+    <h1 class="manage-tags-title">分类</h1>
 
     <!-- 标签列表 -->
     <div id="tag-list" class="tag-list">
         {% for tag in tags %}
             <div class="tag-item" data-tag-id="{{ tag.id }}">
-                <span class="tag-name">{{ tag.name }}</span>
-                <span class="badge badge-secondary article-count">{{ tag.article_count }} articles</span>
-                <a href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}" class="view-articles-btn">View Articles</a>
-                <button class="delete-tag-btn btn btn-danger btn-sm" data-tag-id="{{ tag.id }}">Delete</button>
+                <span class="tag-name"><a class="no_style" href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}"> {{ tag.name|translate_tag }} </a></span>
+                <span class="badge badge-secondary article-count">{{ tag.article_count }} 投稿</span>
+                <a href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}" class="view-articles-btn">查看投稿</a>
+                {% if current_user.is_admin %}
+                    <button class="delete-tag-btn btn btn-danger btn-sm" data-tag-id="{{ tag.id }}">删除</button>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
 
     <!-- 添加新标签 -->
-    <div class="new-tag-container">
-        <input type="text" class="form-control new-tag-input" id="new-tag-name" placeholder="Enter new tag">
-        <button class="btn btn-primary add-tag-btn" id="create-tag-btn">Add Tag</button>
-    </div>
+    {% if current_user.is_admin %}
+        <div class="new-tag-container">
+            <input type="text" class="form-control new-tag-input" id="new-tag-name" placeholder="新标签名">
+            <button class="btn btn-primary add-tag-btn" id="create-tag-btn">确认添加</button>
+        </div>
+    {% endif %}
 </div>
 
 <!-- 弹窗提示 -->

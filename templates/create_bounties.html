@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="upload-container">
+    <h1 class="upload_title">
+        {% if is_edit %}
+            编辑悬赏问题
+        {% else %}
+            发布悬赏问题
+        {% endif %}
+    </h1>
+
+    <form action="{{ url_for('edit_bounty', bounty_id=bounty.id) if is_edit else url_for('create_bounty') }}" method="POST" enctype="multipart/form-data">
+        
+        <!-- 问题标题 -->
+        <div class="form-group">
+            <label for="title">问题标题：</label>
+            <input type="text" id="title" name="title" maxlength="100" required
+                   value="{{ bounty.title if is_edit else '' }}">
+        </div>
+
+        <!-- 问题描述 -->
+        <div class="form-group-textarea-container">
+            <label for="description">问题描述：</label>
+            <textarea id="description" name="description" rows="4" maxlength="500" required>{{ bounty.description if is_edit else '' }}</textarea>
+            <div id="char-count" class="char-count">0 / 500</div>
+        </div>
+
+        <!-- 荣誉货币奖励 -->
+        <div class="form-group">
+            <label for="reward">奖励（荣誉货币）：</label>
+            <input type="number" id="reward" name="reward" min="1" max="20" required
+                   value="{{ bounty.reward if is_edit else 5 }}">
+        </div>
+
+        <!-- 图片上传 -->
+        <div class="form-group">
+            <label for="image">{{ is_edit and '更新悬赏配图（可选）' or '上传悬赏配图（可选）' }}：</label>
+            <input type="file" id="image-input" name="image" accept="image/*">
+        </div>
+
+        <!-- 预览区域 -->
+        <div class="form-group">
+            <label>当前图片预览：</label>
+            <div>
+                {% if is_edit and bounty.image_path %}
+                    <img id="image-preview" src="{{ bounty.image_path }}" alt="悬赏配图" style="max-width:200px; border-radius:4px;">
+                {% else %}
+                    <img id="image-preview" src="" alt="无图片" style="display:none; max-width:200px; border-radius:4px;">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 标签选择 -->
+        <div class="form-group">
+            <label for="tags">标签：</label>
+            <div class="d-flex flex-wrap" id="tag-container">
+                {% for tag in tags %}
+                    <button type="button"
+                            class="tag-btn article-tag-{{ tag.name }} {% if is_edit and tag in bounty.tags %}selected{% endif %}"
+                            data-tag="{{ tag.id }}">
+                        {{ tag.name|translate_tag }}
+                    </button>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="tags" id="selected-tags"
+                   value="{% if is_edit %}{{ bounty.tags | map(attribute='id') | join(',') }}{% endif %}">
+        </div>
+
+        <button type="submit" class="submit-btn">
+            {% if is_edit %}
+                更新悬赏问题
+            {% else %}
+                发布悬赏问题
+            {% endif %}
+        </button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const input = document.getElementById('image-input');
+    const preview = document.getElementById('image-preview');
+
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 字数统计
+    const textarea = document.getElementById('description');
+    const charCount = document.getElementById('char-count');
+    const maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
+    charCount.textContent = `${textarea.value.length} / ${maxLength}`;
+    textarea.addEventListener('input', () => {
+        charCount.textContent = `${textarea.value.length} / ${maxLength}`;
+    });
+
+    // 标签选择
+    const selectedTags = [];
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-tag');
+            btn.classList.toggle('selected');
+            if (btn.classList.contains('selected')) {
+                selectedTags.push(id);
+            } else {
+                const idx = selectedTags.indexOf(id);
+                if (idx > -1) selectedTags.splice(idx, 1);
+            }
+            document.getElementById('selected-tags').value = selectedTags.join(',');
+        });
+    });
+
+    // 如果编辑模式，初始化 selectedTags 数组
+    {% if is_edit %}
+        {% for tag in bounty.tags %}
+            selectedTags.push('{{ tag.id }}');
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock %}

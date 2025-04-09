@@ -2,7 +2,28 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>All {{ 'Published' if (mode == 'read') else 'Draft' }} Articles</h1>
+    <h1>{{ '投稿' if (mode == 'read') else '待审核' }}文章</h1>
+
+    <!-- 搜索区域 -->
+    <div class="search-container">
+        <form action="{{ url_for('view_all_articles') if (mode == 'read') else url_for('audit_articles') }}" method="GET" class="search-form">
+            <div class="search-box">
+                <input type="text" name="query" class="search-input" placeholder="请输入关键词进行搜索" value="{{ query }}">
+                <button type="submit" class="search-button">搜索</button>
+            </div>
+            <div class="filter-options">
+                <label>
+                    <input type="radio" name="filter" value="title" {% if filter == 'title' or not filter %}checked{% endif %}>
+                    按照标题搜索
+                </label>
+                <label>
+                    <input type="radio" name="filter" value="description" {% if filter == 'description' %}checked{% endif %}>
+                    按照简介搜索
+                </label>
+            </div>
+        </form>
+    </div>
+
     <div class="row">
         {% for article in articles %}
         <div class="col-lg-4 col-md-6 mb-4">
@@ -10,33 +31,46 @@
                 <div class="article-card-body">
                     <!-- 文章标题，点击跳转到查看文章页面 -->
                     <h5 class="article-card-title">
-                        <a href="{{ url_for('view_article', article_id=article.id) }}">{{ article.title }}</a>
+                        <a href="{{ url_for('view_article', article_id=article.id, mode=mode) }}">{{ article.title }}</a>
                     </h5>
 
+                    <!-- 显示文章作者 -->
+                    <p class="article-card-text">作者：<a style="no_style" href="{{ url_for('dashboard', user_id=article.users.id) }}" >{{ article.users.username }}</a></p>
+
                     <!-- 显示浏览量（仅管理员可见） -->
-                    {% if session.get('is_admin') %}
-                    <p class="article-card-text">Views: {{ article.views }}</p>
+                    {% if current_user.is_admin %}
+                        <p class="article-card-text">浏览次数：{{ article.views }}</p>
                     {% endif %}
 
-                    <!-- 显示文章作者 -->
-                    <p class="article-card-text">Author: {{ article.users.username }}</p>
-
-                    <!-- 文章描述 -->
-                    <p class="article-card-text">{{ article.description }}</p>
+                    <!-- 文章描述，添加新类 article-description 来限制行数 -->
+                    <p class="article-card-text article-description">{{ article.description }}</p>
 
                     <!-- 显示文章标签 -->
-                    <div class="article-tags">
-                        {% if article.tags %}
-                            {% for tag in article.tags %}
-                            <span class="article-badge article-tag-{{ (tag.name.lower().replace(' ', '-')) if ((tag.name.lower().replace(' ', '-')) in colored_tag_lst) else 'others' }}">{{ tag.name }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span class="article-badge article-tag-none">No Tag</span>
+                    <div class="article-tags-container">
+                        <div class="article-tags">
+                            {% if article.tags %}
+                                {% for tag in article.tags %}
+                                    <span class="article-badge article-tag-{{ tag.name if (tag.name in colored_tag_lst) else 'others' }}"><a class='no_style' href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}"> {{ tag.name|translate_tag }} </a></span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="article-badge article-tag-none">无标签</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="article-card-footer">
+                        <a href="{{ url_for('view_article', article_id=article.id, mode=mode) }}" class="article-btn read">进入阅读</a>
+                        {% if current_user.id == article.user_id %}
+                            <form method="post" action="{{ url_for('modify_article', article_id=article.id) }}" style="display: inline-block;" onsubmit="return confirm('你确定要修改文章吗？需要重新审核');">
+                                <button type="submit" class="article-btn delete">修改</button>
+                            </form>
+                        {% endif %}
+                        {% if current_user.is_admin %}
+                            <form method="post" action="{{ url_for('delete_article', article_id=article.id) }}" style="display: inline-block;" onsubmit="return confirm('你确定要删除该文章吗？操作不可恢复');">
+                                <button type="submit" class="article-btn delete">删除</button>
+                            </form>
                         {% endif %}
                     </div>
-                </div>
-                <div class="article-card-footer">
-                    <a href="{{ url_for('view_article', article_id=article.id) }}" class="btn btn-primary">Read More</a>
                 </div>
             </div>
         </div>

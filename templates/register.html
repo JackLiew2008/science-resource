@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<div class="upload-container">
-        <h1 class="upload_title">注册</h1>
+	<div class="register-container">
+        <h1 class="register_title">注册</h1>
         <form method="post">
             <div class="form-group">
                 <label>用户名：</label>
@@ -13,8 +13,8 @@
 		        <input type="text" name="realname" placeholder="请填写实名以获得投稿奖励" maxlength="10" required>
 	        </div>
 	        <div class="form-group">
-		        <label>邮箱：</label>
-		        <input type="text" name="email" placeholder="" maxlength="50" required>
+		        <label>联系方式：</label>
+		        <input type="text" name="email" placeholder="邮箱 或 微信号 或 电话" maxlength="50" required>
 	        </div>
             <div class="form-group">
                 <label>密码：</label>
@@ -29,6 +29,7 @@
 	        </div>-->
             <button type="submit" class="submit-btn">注册</button>
         </form>
+		<p class="bottom-text">已有账号？ <a href="{{ url_for('login') }}">登录</a></p>
     </div>
 
 	<script>

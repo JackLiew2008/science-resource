@@ -8,6 +8,6 @@
 		    <button type="submit" class="custom-btn">确认销户</button>
 		</form>
 		<br/>
-		<a href="{{ url_for('dashboard') }}">返回控制面板</a>
+		<a href="{{ url_for('dashboard', user_id=current_user.id) }}">返回控制面板</a>
 	</div>
 {% endblock %}

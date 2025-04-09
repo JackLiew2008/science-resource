@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/static/css_reads.css">
 	<link rel="stylesheet" type="text/css" href="/static/css_html.css">
-	
     <title>{{ title }}</title>
 </head>
 <body style='margin:0'>
@@ -13,34 +11,70 @@
 	
     {% include 'flash_message.html' %}
     
+	<div class="article-container mt-5">
+		<h1 class="article-title">{{ article.title }}</h1>
+		<p class="article-meta"><strong>作者:</strong> {{ article.users.username }}</p>
+		<p class="article-meta"><strong>简介:</strong> {{ article.description }}</p>
+		<p class="article-meta"><strong>最后修改:</strong> {{ article.updated_at }}</p>
+		
+		{% if article.status == 'draft' %}
+			<p class="article-meta"><strong>文章状态: </strong>待审核（或正在编辑）</p>
+		{% else %}
+			{% if article.status == 'published' %}
+				<p class="article-meta"><strong>文章状态: </strong>已发布</p>
+			{% else %}
+				<p class="article-meta"><strong>文章状态: </strong>已删除</p>
+			{% endif %}
+		{% endif %}
+
+		<h4 class="article-tags-title">标签:</h4>
+	
+		<!-- 显示文章标签 -->
+		<div class="article-tags">
+			{% if article.tags %}
+				{% for tag in article.tags %}
+				<span class="article-badge article-tag-{{ tag.name if tag.name in colored_tag_lst else 'others' }}"><a class='no_style' href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}"> {{ tag.name|translate_tag }} </a></span>
+				{% endfor %}
+			{% else %}
+				<span class="article-badge article-tag-none">无标签</span>
+			{% endif %}
+		</div>
+	</div>
+
     <!-- 主体内容 -->
     <main>
 	    {% block content %}{% endblock %}
     </main>
-	{% if state == "audit" %}
+	{% if mode == "audit" %}
+	
 		<div class="action-container">
 	        <div class="action-title">审核操作</div>
 	        <div class="action-row">
-		        <form method="post" action="/audit_move/{{ title }}">
-			        <button type="submit" class="action-button approve-button">审核通过</button>
-		            <label class="honor-label">
-		                荣誉货币：
-		                <input
-		                    type="number"
-		                    name="honorCurrency"
-		                    class="honor-input"
-		                    id="honorCurrency"
-		                    min="2"
-		                    max="10"
-		                    value="5">
-		            </label>
-		        </form>
-		        <form method="post" action="/audit_delete/{{ title }}">
-			        <button type="submit" class="action-button reject-button">审核拒绝</button>
-		        </form>
-	         
+		        <form method="post" action="{{ url_for('audit_article', article_id=article.id) }}">
+					<button type="submit" class="action-button approve-button" name="decision" value="approve">
+						审核通过
+					</button>
+					<label class="honor-label">
+						荣誉货币：
+						<input
+							type="number"
+							name="honorCurrency"
+							class="honor-input"
+							id="honorCurrency"
+							min="0"
+							max="{{ 10 - article.balance }}"
+                    		value="{{ 5 if article.balance <= 5 else (10 - article.balance) }}">
+					</label>
+					<button type="submit" class="action-button reject-button" name="decision" value="reject">
+						审核拒绝
+					</button>
+				</form>
 	        </div>
 	    </div>
+	{% else %}
+		<div class="article-rear-container mt-5">
+			<a href="{{ url_for('upload') }}" class="btn-create-article mt-3">创建一个文章</a>
+		</div>
 	{% endif %}
 	{% include 'footer.html' %}
 	<script>

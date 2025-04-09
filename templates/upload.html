@@ -1,45 +1,85 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<div class="upload-container">
-        <h1 class="upload_title">上传文件</h1>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="title">标题：</label>
-                <input type="text" id="title" name="title" maxlength="50" required>
-            </div>
-            <div class="form-group-textarea-container">
-                <label for="description">描述：</label>
-                <textarea id="description" name="description" rows="4" maxlength="100" required></textarea>
-                <div id="char-count" class="char-count">
-		            0 / 100
-		        </div>
-            </div>
+<div class="upload-container">
+    <h1 class="upload_title">
+        {% if bounty %}
+            回答悬赏
+        {% elif article %}
+            编辑投稿
+        {% else %}
+            创建投稿
+        {% endif %}
+    </h1>
+    
+    <form action="/upload{% if article %}?article_id={{ article.id }}{% elif bounty %}?bounty_id={{ bounty.id }}{% endif %}" method="POST" enctype="multipart/form-data">
+        <!-- 标题 -->
+        <div class="form-group">
+            <label for="title">{{ "悬赏问题：（预设）" if bounty else "标题：" }}</label>
+            <input type="text" id="title" name="title" maxlength="50" required value="{{ bounty.title if bounty else (article.title if article else '') }}">
+        </div>
 
-            <div class="form-group">
-                <label for="file">上传文件：</label>
-                <input type="file" id="file" name="file" accept=".pdf" required>
+        <!-- 描述 -->
+        <div class="form-group-textarea-container">
+            <label for="description">描述：</label>
+            <textarea id="description" name="description" rows="4" maxlength="100" required>{{ article.description if article else '' }}</textarea>
+            <div id="char-count" class="char-count">0 / 100</div>
+        </div>
+
+        <!-- 标签选择 -->
+        <div class="form-group">
+            <label for="tags">标签：（预设）</label>
+            <div class="d-flex flex-wrap" id="tag-container">
+                {% for tag in tags %}
+                    <button type="button" 
+                            class="tag-btn article-tag-{{ tag.name }} 
+                            {% if (bounty and tag in bounty.tags) or (article and tag in article.tags) %}selected{% endif %}" 
+                            data-tag="{{ tag.id }}">
+                        {{ tag.name|translate_tag }}
+                    </button>
+                {% endfor %}
             </div>
-            <button type="submit" class="submit-btn">提交</button>
-        </form>
-    </div>
+            <input type="hidden" name="tags" id="selected-tags" value="{% if article %}{{ article.tags | map(attribute='id') | join(',') }}{% elif bounty %}{{ bounty.tags | map(attribute='id') | join(',') }}{% endif %}">
+        </div>
+
+
+        <!-- 上传文件 -->
+        <div class="form-group">
+            <label for="file">{{ '重新上传pdf文件以更新' if article else '上传pdf文件' }}：</label>
+            <input type="file" id="file" name="file" accept=".pdf" required>
+        </div>
+
+        <button type="submit" class="submit-btn">{{ '更新' if article else '提交' }}</button>
+    </form>
+</div>
 
 <script>
-	document.addEventListener('DOMContentLoaded', () => {
-	    const textarea = document.getElementById('description');
-	    const charCount = document.getElementById('char-count');
-	    const maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
-	
-	    textarea.addEventListener('input', () => {
-	        const currentLength = textarea.value.length;
-	        charCount.textContent = `${currentLength} / ${maxLength}`;
-	
-	        if (currentLength >= maxLength) {
-	            charCount.classList.add('red');
-	        } else {
-	            charCount.classList.remove('red');
-	        }
-	    });
-	});
+    document.addEventListener('DOMContentLoaded', () => {
+        const textarea = document.getElementById('description');
+        const charCount = document.getElementById('char-count');
+        const maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
+        charCount.textContent = `${textarea.value.length} / ${maxLength}`;
+
+        textarea.addEventListener('input', () => {
+            charCount.textContent = `${textarea.value.length} / ${maxLength}`;
+        });
+
+        // 处理标签选择
+        document.querySelectorAll('.tag-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('selected');
+                updateSelectedTags();
+            });
+        });
+
+        function updateSelectedTags() {
+            let selectedTags = [];
+            document.querySelectorAll('.tag-btn.selected').forEach(button => {
+                selectedTags.push(button.getAttribute('data-tag'));
+            });
+            document.getElementById('selected-tags').value = selectedTags.join(',');
+        }
+    });
 </script>
+
 {% endblock %}

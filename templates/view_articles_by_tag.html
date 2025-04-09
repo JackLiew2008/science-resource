@@ -2,21 +2,34 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Articles Tagged with "{{ tag.name }}"</h1>
+    <h1>标签 {{ tag.name|translate_tag }} 下的文章</h1>
     <ul class="list-group">
-        {% for article in articles %}
+        {% for article in articles if article.status == 'published' %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{{ url_for('view_article', article_id=article.id) }}">{{ article.title }}</a>
-                <button class="btn btn-warning btn-sm"
-                        data-article-id="{{ article.id }}"
-                        data-tag-id="{{ tag.id }}">
-                    Remove Tag
-                </button>
+                <div>
+                    <a href="{{ url_for('view_article', article_id=article.id) }}">{{ article.title }}</a>
+                </div>
+                <div>
+                    <!-- 进入阅读按钮 -->
+                    <a href="{{ url_for('view_article', article_id=article.id) }}" class="btn btn-primary btn-sm white_text">进入阅读</a>
+                    <!-- 移除标签按钮 -->
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <button class="btn btn-warning btn-sm"
+                                    data-article-id="{{ article.id }}"
+                                    data-tag-id="{{ tag.id }}">
+                                移除标签
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
             </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('manage_tags') }}" class="btn btn-secondary mt-3">Back to Manage Tags</a>
+    <br />
+    <a href="{{ url_for('manage_tags') }}" class="btn btn-secondary mt-3 no_style white_text">返回标签管理界面</a>
 </div>
+
 
 <script>
     // 监听取消标签按钮的点击事件

@@ -6,23 +6,22 @@
         </a>
     </div>
     <ul class="need-space">
-        <li><a href="/upload">上传</a></li>
-	    <li><a href="/upload2">上传2</a></li>
-	    <li><a href="/create_article">上传3</a></li>
-        <li><a href="/">阅读</a></li>
-	    <li><a href="/articles">阅读2</a></li>
+        <li><a href="/upload">创建投稿</a></li>
+	    <li><a href="/articles">阅读投稿</a></li>
+		<li><a href="{{ url_for('manage_tags') }}">投稿分类</a></li>
+		<li><a href="{{ url_for('bounties') }}" class="bounty-button">🔥热门悬赏</a></li>
     </ul>
 	{% if current_user.is_authenticated %}
 		{% if current_user.is_admin %}
 			<ul>
 	            <li><a href="{{ url_for('admin') }}">管理员</a></li>
-		        <li><a href="{{ url_for('audit') }}">审核文章</a></li>
-				<li><a href="{{ url_for('audit_articles') }}">审核文章2</a></li>
-				<li><a href="{{ url_for('manage_tags') }}">管理标签</a></li>
+				<li><a href="{{ url_for('audit_articles') }}">审核文章</a></li>
 			</ul>
+		{% else %}
+
         {% endif %}
 		<div class="login-btn">
-	        <a href="{{ url_for('dashboard') }}" class="custom-btn">我的金库</a> <!-- 登出按钮 -->
+	        <a href="{{ url_for('dashboard', user_id=current_user.id) }}" class="custom-btn">个人面板</a> <!-- 登出按钮 -->
 	    </div>
 		<div class="login-btn">
 	        <a href="{{ url_for('logout') }}" class="custom-btn">登出</a> <!-- 登出按钮 -->

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>网站使用教程</h1>
+    <b><p><a href="{{ url_for('about') }}">关于我们</a></p></b>
+    <br/>
+    <p>欢迎使用本网站！以下是一些使用教程：</p>
+    <ul>
+        <li><strong>如何创建文章：</strong> 点击导航栏中的“创建文章”按钮，填写标题、描述和上传文件。</li>
+        <li><strong>如何审核文章：</strong> 管理员可进入审核界面，对文章进行通过或拒绝，并分配荣誉货币。</li>
+        <li><strong>其他操作：</strong> ...</li>
+    </ul>
+    <p>更多详细说明请联系管理员或查看文档。</p>
+</div>
+{% endblock %}

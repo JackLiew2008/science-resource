@@ -8,24 +8,40 @@
 		<table>
 			<thead>
 				<tr>
-					<th>ID</th>
-					<th>Username</th>
-					<th>RealName</th>
-					<th>Email</th>
-					<th>Password</th>
-					<th>Balance</th>
-					<th>Admin</th>
+					{% set columns = {
+						'id': 'ID', 
+						'username': '用户名', 
+						'realname': '实名', 
+						'email': '联系方式', 
+						'password': '密码', 
+						'balance': '荣誉货币', 
+						'article_count': '文章数量', 
+						'is_admin': '管理员'
+					} %}
+	
+					{% for column, title in columns.items() %}
+					<th>
+						<a href="{{ url_for('admin', sort_by=column, order=('asc' if sort_by != column or order == 'desc' else 'desc')) }}" class="sortable-header">
+							{{ title }}
+							<span class="sort-icons">
+								<span class="sort-up {% if sort_by == column and order == 'desc' %}black{% else %}gray{% endif %}">▲</span>
+								<span class="sort-down {% if sort_by == column and order == 'asc' %}black{% else %}gray{% endif %}">▼</span>
+							</span>
+						</a>
+					</th>
+					{% endfor %}
 				</tr>
 			</thead>
 			<tbody>
 				{% for user in users %}
 					<tr>
-						<td> {{ user.id }} </td>
-						<td> {{ user.username }} </td>
-						<td> {{ user.realname }} </td>
-						<td> {{ user.email }} </td>
-						<td> {{ user.password }} </td>
-						<td> {{ user.balance }} </td>
+						<td>{{ user.id }}</td>
+						<td>{{ user.username }}</td>
+						<td>{{ user.realname }}</td>
+						<td>{{ user.email }}</td>
+						<td>{{ user.password }}</td>
+						<td>{{ user.balance }}</td>
+						<td>{{ user.article_count }}</td>
 						<td>
 							<form method="POST" action="{{ url_for('toggle_admin', user_id=user.id) }}" style="display:inline;">
 								<button type="submit">{{ '取消管理员' if user.is_admin else '设置管理员' }}</button>

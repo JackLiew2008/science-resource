@@ -1,90 +1,140 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <!-- 主体内容 -->
-    <div class="custom-container">
-	    
-	    <div class="flashes">
-		    网站使用疑问：
-		    15810135648（微信）
-		    或 liuzj_jack@163.com（邮箱）
-	    </div>
-	    
-	    <!-- 搜索模块 -->
-	    <form action="/" method="get">
-	        <div class="search-container">
-	            <input type="text" name="query" class="search-input" id="searchInput" placeholder="根据文章名称或简介搜索..." value="{% if qquery == '' %}{% else %}{{ qquery }}{% endif %}">
-	            <button type="submit" class="search-button">搜索</button>
-		        <div class="autocomplete-list" id="autocompleteList"></div>
-	        </div>
-	    </form>
-	    
-        <div class="card-container">
-	        {% for file in files %}
-	        <div class="card">
-		        <div class="card-content">
-			        <a href="{{ file.link }}" target="_blank"><div class="title">{{ file.title }}</div></a>
-		         
-			        {% if session.get('is_admin') %}
-			            <p>浏览次数：{{ file.view }}</p>
-			        {% endif %}
-			        <p>作者：{{ file.user }}</p>
-			        <p>{{ file.description }}</p>
-		        </div>
-		        <a href="{{ file.link }}" target="_blank" class="card-link">进入阅读</a>
-	        </div>
-	        {% endfor %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <h1>探索科学的无限可能</h1>
+            <p>共享前沿科学资源，激发创新思维，与全球科研爱好者共同成长。</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('view_all_articles') }}" class="btn hero-btn primary">立即探索</a>
+                <a href="{{ url_for('register') }}" class="btn hero-btn secondary">加入我们</a>
+            </div>
         </div>
     </div>
+</section>
 
-	{% set state = state %}
-	<script>
-	    let articles = [];
+<!-- Features Section -->
+<section class="features">
+    <div class="container">
+        <div class="feature-item">
+            <i class="fas fa-book-open"></i>
+            <h3>学术资源库（5月份开启）</h3>
+            <p>获取实用科研论文、教程和电子书。</p>
+        </div>
+		<div class="feature-item">
+			<i class="fas fa-pencil-alt"></i>
+			<h3><a class="only_text_dec" href="{{ url_for("view_all_articles") }}">科学投稿</a></h3>
+			<p>发表原创投稿，启发更多科学探索。</p>
+		</div>
+        <div class="feature-item">
+            <i class="fas fa-flask"></i>
+            <h3>实验项目（AP后开启）</h3>
+            <p>分享你的创新和研究，参与前沿项目。</p>
+        </div>
+    </div>
+</section>
 
-	    // 获取文件列表
-	    async function fetchArticles() {
-	        const response_audit = await fetch('/get-audit');
-			const response_reads = await fetch('/get-reads');
-			var state = {{ state | tojson }}
-			if (state=='audit') {
-				articles = await response_audit.json();
-		    } else if ( state=='reads' ) {
-				articles = await response_reads.json();
-		    }
-	    }
-	
-	    // 调用获取文件列表的函数
-	    fetchArticles();
-	
-	    const searchInput = document.getElementById("searchInput");
-	    const autocompleteList = document.getElementById("autocompleteList");
-	
-	    searchInput.addEventListener("input", function() {
-	        const query = searchInput.value.toLowerCase();
-	        autocompleteList.innerHTML = "";  // 清空旧的搜索结果
-	
-	        if (query) {
-	            // 根据输入内容过滤文件列表
-	            const filteredArticles = articles.filter(item => item.title.toLowerCase().includes(query) || item.description.toLowerCase().includes(query));
-	
-	            // 显示筛选出的文件
-	            filteredArticles.forEach(item => {
-	                const listItem = document.createElement("div");
-	                listItem.classList.add("autocomplete-item");
-	                listItem.innerText = item.title;
-	                listItem.addEventListener("click", function() {
-	                    window.location.href = item.link;  // 点击跳转到文件链接
-	                });
-	                autocompleteList.appendChild(listItem);
-	            });
-	        }
-	    });
-	
-	    // 点击页面其他地方时，隐藏下拉列表
-	    document.addEventListener("click", function(e) {
-	        if (!searchInput.contains(e.target)) {
-	            autocompleteList.innerHTML = "";
-	        }
-	    });
-	</script>
+<br/>
+<hr/>
+<br/>
+
+
+<!-- 热门悬赏 Section -->
+<section class="hot-bounties">
+    <div class="container">
+      <h2 class="section-title">热门悬赏</h2>
+      <p class="section-subtitle">限时挑战，赢取丰厚奖励，赶快参与吧！</p>
+      
+      <div class="hot-bounties-grid">
+        {% for bounty in hot_bounties %}
+        <div class="hot-bounty-card">
+          
+          <!-- 左侧图片 -->
+          <div class="hot-bounty-image-container">
+            <img src="{{ bounty.image_path }}" alt="悬赏配图" class="hot-bounty-image">
+          </div>
+          
+          <!-- 中间内容 -->
+          <div class="hot-bounty-content">
+            <h3 class="hot-bounty-title">{{ bounty.title }}</h3>
+            <!-- 标签行：如果需要展示标签 -->
+            <div class="article-tags_no_top_margin">
+              {% if bounty.tags %}
+                {% for tag in bounty.tags %}
+                  <span class="article-badge article-tag-{{ tag.name if tag.name in colored_tag_lst else 'others' }}">
+                    <a class="no_style" href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}">
+                      {{ tag.name|translate_tag }}
+                    </a>
+                  </span>
+                {% endfor %}
+              {% else %}
+                <span class="article-badge article-tag-none">无标签</span>
+              {% endif %}
+            </div>
+            <p class="hot-bounty-description">{{ bounty.description }}</p>
+          </div>
+          
+          
+          <!-- 右侧奖励和按钮 -->
+          <div class="hot-bounty-extra">
+            <div class="hot-bounty-reward">
+              <span class="reward-amount">+{{ bounty.reward }}</span>
+              <img src="{{ url_for('static', filename='coin2.png') }}" alt="荣誉币图标" class="honor-icon">
+            </div>
+            <a href="{{ url_for('upload', bounty_id=bounty.id) }}" class="hot-bounty-btn">接受挑战，去投稿</a>
+          </div>
+          
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+<!-- Latest Resources Section -->
+<section class="latest-resources">
+    <div class="container">
+        <h2>最新投稿</h2>
+        <div class="resources-grid">
+            {% for resource in latest_resources %}
+            <div class="resource-card">
+                <div class="article-card-title">
+                    <h4><a href="{{ url_for('view_article', article_id=resource.id) }}">{{ resource.title }}</a></h4>
+                </div>
+                <p class="resource-meta">
+                    由 <a style="no_style" href="{{ url_for('dashboard', user_id=resource.users.id) }}">{{ resource.users.username }}</a> 发布
+                </p>
+                </div>
+            {% endfor %}
+        </div>
+        <br/>
+        <a href="{{ url_for('view_all_articles') }}" class="btn latest-resource-btn">阅读更多</a>
+    </div>
+</section>
+
+
+<!-- Community Updates Section -->
+<!-- <section class="community-updates">
+    <div class="container">
+        <h2>科学社区动态</h2>
+        <ul class="updates-list">
+            {% for update in community_updates %}
+            <li>
+                <h4>{{ update.title }}</h4>
+                <p>{{ update.content }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section> -->
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="container">
+        <h2 style="color:black">立即开启你的科学探索之旅！</h2>
+        <a href="{{ url_for('register') }}" class="btn cta-btn">注册</a>
+        <a href="{{ url_for('login') }}" class="btn cta-btn">登录</a>
+    </div>
+</section>
 {% endblock %}

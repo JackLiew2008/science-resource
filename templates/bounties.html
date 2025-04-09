@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4">问题悬赏</h1>
+  {% if current_user.is_admin %}
+    <a href="{{ url_for('create_bounty') }}" class="btn btn-primary mb-4">发布新悬赏</a>
+  {% endif %}
+
+  <div class="bounty-list">
+    {% for b in bounties %}
+    <div class="bounty-item d-flex align-items-start mb-4 p-4 shadow-sm rounded">
+
+      <!-- 左侧图片 -->
+      <div class="bounty-image-container me-4">
+        <img src="{{ b.image_path }}" alt="bounty image" class="bounty-image">
+      </div>
+      
+      <!-- 中间内容 -->
+      <div class="bounty-middle flex-grow-1 d-flex flex-column justify-content-between">
+        
+        <h3 class="bounty-title mb-2">{{ b.title }}</h3>
+
+        <div class="article-tags_no_top_margin">
+          {% if b.tags %}
+            {% for tag in b.tags %}
+            <span class="article-badge article-tag-{{ tag.name if tag.name in colored_tag_lst else 'others' }}"><a class='no_style' href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}"> {{ tag.name|translate_tag }} </a></span>
+            {% endfor %}
+          {% else %}
+            <span class="article-badge article-tag-none">无标签</span>
+          {% endif %}
+        </div>
+        
+        <p class="bounty-description mb-0">{{ b.description }}</p>
+      </div>
+
+      <!-- 右侧奖励和按钮 -->
+      <div class="bounty-right d-flex flex-column justify-content-between text-end ms-3">
+        
+        <!-- 奖励显示 -->
+        <div class="bounty-reward-display mb-3">
+          <span class="reward-amount">+{{ b.reward }}</span>
+          <img src="{{ url_for('static', filename='coin2.png') }}" alt="coin" class="honor-icon">
+        </div>
+
+        {% if not current_user.is_admin %}
+          <!-- 用户端：接受挑战按钮 -->
+          <a href="{{ url_for('upload', bounty_id=b.id) }}" class="btn custom-submit-btn">接受挑战，去投稿</a>
+        {% else %}
+          <!-- 管理员端：编辑删除按钮 -->
+          <div class="admin-button-group">
+            <a href="{{ url_for('edit_bounty', bounty_id=b.id) }}" class="admin-btn edit-btn">编辑</a>
+            <form method="post" action="{{ url_for('delete_bounty', bounty_id=b.id) }}" onsubmit="return confirm('确认删除？');" class="inline-form">
+              <button class="admin-btn delete-btn">删除</button>
+            </form>
+          </div>          
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,44 +1,119 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<div class="custom-container">
-		<h2>欢迎, {{ user.username }}!</h2>
-		<p>你的荣誉货币余额: {{ user.balance }}</p>
+	<br/>
+	<br/>
+	<div class="custom-container max_lim_900">
+		<h2>欢迎{{ ("回来，" + user.username + "！") if (current_user.id == user.id) else ("参观 " + user.username + " 的个人面板！") }}</h2>
+		<p>{{ "我" if (current_user.id == user.id) else "TA" }}的荣誉货币余额: {{ user.balance }}</p>
 		<div class="honor-display" id="honor-container"></div>
 		
-		<br/>
-		<h3>转移荣誉货币</h3>
-		<form method="POST" action="{{ url_for('transfer') }}">
-		    <input type="text" name="recipient" placeholder="接收者用户名" required>
-		    <input type="number" name="amount" placeholder="转移金额" required min="1">
-		    <button type="submit">转移</button>
-		</form>
+		{% if current_user.is_admin %}
+			{% if current_user.id == user.id %}
+				<br/>
+				<h3>转移荣誉货币</h3>
+				<form method="POST" action="{{ url_for('transfer') }}">
+					<input type="text" name="recipient" placeholder="接收者用户名" required>
+					<input type="number" name="amount" placeholder="转移金额" required min="1">
+					<button type="submit">转移</button>
+				</form>
+				<br/>
+				<h3>增加荣誉货币</h3>
+				<form method="POST" action="{{ url_for('increase_balance') }}">
+					<input type="hidden" name="user_id" value="{{ user.id }}">
+					<input type="number" name="amount" placeholder="增加金额" required min="-100" max="100">
+					<button type="submit">增加</button>
+				</form>
+			{% endif %}
+		{% endif %}
 		
-		<br/>
+		<br />
+
+		<h3>{{ "我的投稿" if (current_user.id == user.id) else "TA 的投稿" }}</h3>
+		<div class="dashboard_container mt-5">
+			<div class="row">
+				{% for article in articles %}
+				<div class="col-lg-4 col-md-6 mb-4">
+					<div class="article-card border p-3">
+						<div class="article-card-body">
+							<!-- 文章标题，点击跳转到查看文章页面 -->
+							<h5 class="article-card-title">
+								<a href="{{ url_for('view_article', article_id=article.id, mode=mode) }}">{{ article.title }}</a>
+							</h5>
+	
+							<p class="article-card-text">状态：{{ "已发布" if article.status == 'published' else "待审核（或正在编辑）" }}</p>
 		
-		<!-- 添加销户确认链接 -->
-		<a href="{{ url_for('delete_account') }}">
-			<button type="submit" class="custom-btn">
-				销户
-			</button>
-		</a>
+							<!-- 文章描述，添加新类 article-description 来限制行数 -->
+							<p class="article-card-text article-description">{{ article.description }}</p>
+		
+							<!-- 显示文章标签 -->
+							<div class="article-tags-container">
+								<div class="article-tags">
+									{% if article.tags %}
+										{% for tag in article.tags %}
+											<span class="article-badge article-tag-{{ tag.name if (tag.name in colored_tag_lst) else 'others' }}"><a class='no_style' href="{{ url_for('view_articles_by_tag', tag_id=tag.id) }}"> {{ tag.name|translate_tag }} </a></span>
+										{% endfor %}
+									{% else %}
+										<span class="article-badge article-tag-none">无标签</span>
+									{% endif %}
+								</div>
+							</div>
+						
+							<div class="article-card-footer">
+								<a href="{{ url_for('view_article', article_id=article.id, mode=mode) }}" class="article-btn read">进入阅读</a>
+								{% if current_user.id == article.user_id %}
+									<form method="post" action="{{ url_for('modify_article', article_id=article.id) }}" style="display: inline-block;" onsubmit="return confirm('你确定要修改文章吗？需要重新审核');">
+										<button type="submit" class="article-btn delete">修改</button>
+									</form>
+								{% endif %}
+								{% if current_user.is_admin %}
+									<form method="post" action="{{ url_for('delete_article', article_id=article.id) }}" style="display: inline-block;" onsubmit="return confirm('你确定要删除该文章吗？操作不可恢复');">
+										<button type="submit" class="article-btn delete">删除</button>
+									</form>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			{% if articles | length == 0 %}
+        		<p>你还没有投稿哦！赶快来创建第一个吧！</p>
+				<div class="article-rear-container mt-5 transparent_bg">
+					<a href="{{ url_for('upload') }}" class="btn-create-article mt-3">创建第一个投稿</a>
+				</div>
+			{% else %}
+				<div class="article-rear-container mt-5 transparent_bg">
+					<a href="{{ url_for('upload') }}" class="btn-create-article mt-3">创建更多投稿</a>
+				</div>
+			{% endif %}
+		</div>
+
+		{% if current_user.id == user.id %}
+			<br/>
+			<h3>其他操作</h3>
+			<!-- 添加销户确认链接 -->
+			<a href="{{ url_for('delete_account') }}">
+				<button type="submit" class="custom-btn">
+					销户
+				</button>
+			</a>
+		{% endif %}
 	</div>
 	<script>
-		const honorPoints = {{ user.balance }}; // 示例荣誉货币数量
+		const honorPoints = {{ user.balance }};
         const container = document.getElementById("honor-container");
 
-        // 计算完整图标数和部分图标的比例
         const fullIcons = Math.floor(honorPoints / 10);
-        const partialIconPercentage = (honorPoints % 10) * 10; // 部分图标的填充百分比
+        const partialIconPercentage = (honorPoints % 10) * 10;
 
-        // 添加完整图标
         for (let i = 0; i < fullIcons; i++) {
             const icon = document.createElement("div");
             icon.className = "honor-icon full";
             container.appendChild(icon);
         }
 
-        // 添加部分图标
         if (partialIconPercentage > 0) {
             const partialIcon = document.createElement("div");
             partialIcon.className = "honor-icon partial";
@@ -48,4 +123,3 @@
 	</script>
 	
 {% endblock %}
-

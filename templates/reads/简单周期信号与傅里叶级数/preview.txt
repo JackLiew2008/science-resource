@@ -1,5 +1,0 @@
-description: 傅里叶级数简介
-user: dluopunk
-upload_time: 2024:12:25-11:24:50
-view: 4
-: 

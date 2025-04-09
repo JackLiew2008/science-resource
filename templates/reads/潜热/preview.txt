@@ -1,5 +1,0 @@
-description: 潜热 (Latent Heat) 是物体或热力学系统在相变过程中释放或吸收的能量
-user: 侍郎
-upload_time: 2024:12:20-00:27:18
-view: 39
-: 

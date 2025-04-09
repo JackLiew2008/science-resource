@@ -59,7 +59,7 @@
 	        <label for="tags">选择标签</label>
 	        <select name="tags" id="tags" multiple>
 	            {% for tag in tags %}
-	                <option value="{{ tag.id }}">{{ tag.name }}</option>
+	                <option value="{{ tag.id }}">{{ tag.name|translate_tag }}</option>
 	            {% endfor %}
 	        </select><br><br>
 			

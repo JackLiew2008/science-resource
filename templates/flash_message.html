@@ -1,17 +1,17 @@
 <!-- Flash Messages -->
 <div class="message-container">
-    <div id="flash-messages">
-		{% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+    		<div id="flash-messages">
 			    {% for category, message in messages %}
 		            <div class="flash-message {{ category }}">
 			            {{ message }}
 			            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
 			        </div>
 			    {% endfor %}
-			{% endif %}
-		{% endwith %}
-    </div>
+    		</div>
+		{% endif %}
+	{% endwith %}
 </div>
 	 
 <script>
